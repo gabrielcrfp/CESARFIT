@@ -19,7 +19,25 @@ public final class Cpf {
         if (digitos.length() != 11) {
             throw new RegraDeNegocioException("CPF deve conter 11 digitos: " + bruto);
         }
+        if (digitos.chars().distinct().count() == 1) {
+            throw new RegraDeNegocioException("CPF invalido: todos os digitos sao iguais");
+        }
+        int primeiro = digitoVerificador(digitos, 9, 10);
+        int segundo = digitoVerificador(digitos, 10, 11);
+        if (primeiro != Character.digit(digitos.charAt(9), 10)
+                || segundo != Character.digit(digitos.charAt(10), 10)) {
+            throw new RegraDeNegocioException("CPF invalido: digitos verificadores incorretos");
+        }
         return new Cpf(digitos);
+    }
+
+    private static int digitoVerificador(String cpf, int quantidade, int pesoInicial) {
+        int soma = 0;
+        for (int i = 0; i < quantidade; i++) {
+            soma += Character.digit(cpf.charAt(i), 10) * (pesoInicial - i);
+        }
+        int resto = soma % 11;
+        return resto < 2 ? 0 : 11 - resto;
     }
 
     public String numero() {

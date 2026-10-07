@@ -12,4 +12,6 @@ public interface PresencaJpaRepository extends JpaRepository<PresencaEntity, Lon
     boolean existsByAlunoIdAndData(Long alunoId, LocalDate data);
 
     List<PresencaEntity> findByAlunoIdOrderByDataDesc(Long alunoId);
+
+    void deleteByAlunoId(Long alunoId);
 }

@@ -25,9 +25,9 @@
       <img src="logo_cesar.png" class="logo" alt="Logo CesarFit">
       <h1>CESAR FIT</h1>
     </div>
-    <p class="subtitulo-login">Entre com o número da matrícula e a senha.</p>
-    <label class="campo-vidro">Número da matrícula
-      <input id="login-numero" name="numero" type="text" inputmode="text" autocomplete="username" required placeholder="Ex.: 1">
+    <p class="subtitulo-login">Alunos entram com e-mail; a equipe usa o número de acesso.</p>
+    <label class="campo-vidro">E-mail do aluno ou acesso da equipe
+      <input id="login-numero" name="numero" type="text" inputmode="email" autocomplete="username" required placeholder="aluno@email.com ou EQ001" aria-describedby="dica-login">
     </label>
     <label class="campo-vidro">Senha
       <span class="senha-com-olho">
@@ -37,7 +37,7 @@
     </label>
     <p id="erro-login" class="erro-login" role="alert"></p>
     <button type="submit" class="botao-vidro primario-vidro" id="btn-entrar"><span>Entrar</span></button>
-    <p class="dica-login">Primeiro acesso do aluno: a senha são os 6 primeiros dígitos do CPF. A equipe entra com o número de acesso (ex.: EQ001).</p>
+    <p id="dica-login" class="dica-login">Primeiro acesso do aluno: a senha são os 6 primeiros dígitos do CPF. A equipe entra com o número de acesso (ex.: EQ001).</p>
   </form>
 </section>
 
@@ -109,7 +109,7 @@
       <p id="aviso-edicao-aluno" class="modo-edicao oculto"></p>
       <form id="form-aluno" novalidate>
         <label>Nome*<input name="nome" type="text" required minlength="3" placeholder="Ana Lima"></label>
-        <label>CPF*<input name="cpf" type="text" required placeholder="111.222.333-44" maxlength="14"></label>
+        <label>CPF*<input name="cpf" type="text" required placeholder="111.222.333-44" maxlength="14" aria-describedby="ajuda-cpf"><small id="ajuda-cpf" class="dica">O CPF é validado e não pode ser alterado depois do cadastro.</small></label>
         <label>Telefone*<input name="telefone" type="tel" required placeholder="(81) 98888-7777" maxlength="15"></label>
         <label>E-mail*<input name="email" type="email" required placeholder="ana@email.com"></label>
         <label>Data de nascimento*<input name="dataDeNascimento" type="date" required></label>
@@ -148,7 +148,6 @@
           <select id="status-matricula">
             <option value="ATIVA">Ativa</option>
             <option value="VENCIDA">Vencida</option>
-            <option value="CANCELADA">Cancelada</option>
           </select>
         </label>
         <button type="submit" class="primario" id="btn-salvar-matricula">Matricular</button>

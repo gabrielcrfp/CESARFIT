@@ -2,6 +2,7 @@ package school.cesar.gymflow.infrastructure.persistence.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import java.time.LocalDate;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import school.cesar.gymflow.domain.treino.model.GrupoMuscular;
@@ -29,17 +30,27 @@ public class ItemEmbeddable {
     @Column(nullable = false)
     private boolean concluido;
 
+    @Column(name = "concluido_em")
+    private LocalDate concluidoEm;
+
     protected ItemEmbeddable() {
     }
 
     public ItemEmbeddable(String exercicio, GrupoMuscular grupoMuscular, int series,
                           int repeticoes, int descansoEmSegundos, boolean concluido) {
+        this(exercicio, grupoMuscular, series, repeticoes, descansoEmSegundos, concluido, null);
+    }
+
+    public ItemEmbeddable(String exercicio, GrupoMuscular grupoMuscular, int series,
+                          int repeticoes, int descansoEmSegundos, boolean concluido,
+                          LocalDate concluidoEm) {
         this.exercicio = exercicio;
         this.grupoMuscular = grupoMuscular;
         this.series = series;
         this.repeticoes = repeticoes;
         this.descansoEmSegundos = descansoEmSegundos;
         this.concluido = concluido;
+        this.concluidoEm = concluidoEm;
     }
 
     public String getExercicio() {
@@ -65,4 +76,6 @@ public class ItemEmbeddable {
     public boolean isConcluido() {
         return concluido;
     }
+
+    public LocalDate getConcluidoEm() { return concluidoEm; }
 }

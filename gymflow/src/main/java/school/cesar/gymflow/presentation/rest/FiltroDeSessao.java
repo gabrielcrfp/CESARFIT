@@ -36,12 +36,12 @@ public class FiltroDeSessao implements HandlerInterceptor {
         }
         var sessao = sessoes.buscar(token(requisicao)).orElse(null);
         if (sessao == null) {
-            return negar(resposta, HttpServletResponse.SC_UNAUTHORIZED, "Sessao expirada. Entre novamente.");
+            return negar(requisicao, resposta, HttpServletResponse.SC_UNAUTHORIZED, "Sessao expirada. Entre novamente.");
         }
         boolean areaDoAluno = requisicao.getRequestURI().startsWith("/api/area-aluno");
         Perfil exigido = areaDoAluno ? Perfil.ALUNO : Perfil.EQUIPE;
         if (!requisicao.getRequestURI().startsWith("/api/acesso") && sessao.perfil() != exigido) {
-            return negar(resposta, HttpServletResponse.SC_FORBIDDEN, "Acesso nao permitido para o seu perfil");
+            return negar(requisicao, resposta, HttpServletResponse.SC_FORBIDDEN, "Acesso nao permitido para o seu perfil");
         }
         requisicao.setAttribute(ATRIBUTO, sessao);
         return true;
@@ -63,7 +63,13 @@ public class FiltroDeSessao implements HandlerInterceptor {
         return null;
     }
 
-    private static boolean negar(HttpServletResponse resposta, int status, String mensagem) throws IOException {
+    private static boolean negar(HttpServletRequest requisicao, HttpServletResponse resposta,
+                                 int status, String mensagem) throws IOException {
+        if (requisicao.getHeader("Accept") != null
+                && requisicao.getHeader("Accept").contains("text/html")) {
+            resposta.sendRedirect("/");
+            return false;
+        }
         resposta.setStatus(status);
         resposta.setContentType("application/json;charset=UTF-8");
         resposta.getWriter().write("{\"erro\":\"" + mensagem + "\"}");

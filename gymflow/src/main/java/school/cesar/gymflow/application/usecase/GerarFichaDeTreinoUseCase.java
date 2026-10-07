@@ -49,6 +49,13 @@ public class GerarFichaDeTreinoUseCase {
                 .orElseThrow(() -> new RegraDeNegocioException(
                         "Aluno sem matricula vigente nao pode receber ficha"));
 
+        repositorioDeFichas.porAluno(alunoId).stream()
+                .filter(f -> !f.arquivada())
+                .forEach(f -> {
+                    f.arquivar();
+                    repositorioDeFichas.salvar(f);
+                });
+
         GeradorDeFicha gerador = FabricaDeGerador.para(aluno.objetivo());
         FichaDeTreino ficha = gerador.gerar(aluno);
         FichaDeTreino salva = repositorioDeFichas.salvar(ficha);

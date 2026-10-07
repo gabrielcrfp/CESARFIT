@@ -27,11 +27,13 @@ public class MatriculaRepositorioJpa implements RepositorioDeMatriculas {
     @Override
     public Matricula salvar(Matricula matricula) {
         List<PagamentoEmbeddable> pagamentos = matricula.pagamentos().stream()
-                .map(p -> new PagamentoEmbeddable(p.valor().valor(), p.data(), p.formaDePagamento()))
+                .map(p -> new PagamentoEmbeddable(p.valor().valor(), p.data(), p.formaDePagamento(),
+                        p.numeroParcela(), p.vencimento()))
                 .toList();
         MatriculaEntity entidade = new MatriculaEntity(matricula.id(), matricula.alunoId(),
                 matricula.modalidade(), matricula.valorMensal().valor(),
-                matricula.inicio(), matricula.fim(), matricula.status(), pagamentos);
+                matricula.inicio(), matricula.fim(), matricula.status(),
+                matricula.justificativaCancelamento(), matricula.canceladaEm(), pagamentos);
         return paraDominio(jpa.save(entidade));
     }
 
@@ -64,9 +66,15 @@ public class MatriculaRepositorioJpa implements RepositorioDeMatriculas {
 
     static Matricula paraDominio(MatriculaEntity e) {
         List<Pagamento> pagamentos = e.getPagamentos().stream()
-                .map(p -> new Pagamento(Dinheiro.de(p.getValor()), p.getData(), p.getFormaDePagamento()))
+                .map(p -> new Pagamento(Dinheiro.de(p.getValor()), p.getData(), p.getFormaDePagamento(),
+                        p.getNumeroParcela(), p.getVencimento()))
                 .toList();
-        return new Matricula(e.getId(), e.getAlunoId(), e.getModalidade(),
+        Matricula dominio = new Matricula(e.getId(), e.getAlunoId(), e.getModalidade(),
                 Dinheiro.de(e.getValorMensal()), e.getInicio(), e.getFim(), e.getStatus(), pagamentos);
+        if (e.getStatus() == school.cesar.gymflow.domain.matricula.model.StatusMatricula.CANCELADA) {
+            dominio.cancelar(e.getJustificativaCancelamento() == null ? "Nao informada" : e.getJustificativaCancelamento(),
+                    e.getCanceladaEm());
+        }
+        return dominio;
     }
 }

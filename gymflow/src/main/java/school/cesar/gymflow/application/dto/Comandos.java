@@ -22,7 +22,14 @@ public final class Comandos {
     public record SalvarMatricula(Long alunoId, String plano, LocalDate inicio, String status) {
     }
 
-    public record RegistrarPagamento(Long matriculaId, String valor, String formaDePagamento) {
+    public record RegistrarPagamento(Long matriculaId, String valor, String formaDePagamento,
+                                     Integer numeroParcela, LocalDate vencimento) {
+        public RegistrarPagamento(Long matriculaId, String valor, String formaDePagamento) {
+            this(matriculaId, valor, formaDePagamento, null, null);
+        }
+    }
+
+    public record CancelarMatricula(String justificativa) {
     }
 
     public record ConcluirItem(Long fichaId, int posicao) {

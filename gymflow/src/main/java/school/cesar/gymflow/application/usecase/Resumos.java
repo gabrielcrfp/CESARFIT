@@ -23,10 +23,12 @@ final class Resumos {
     static Respostas.MatriculaResumo matricula(Matricula m, String alunoNome) {
         m.atualizarVigencia(LocalDate.now());
         List<Respostas.PagamentoResumo> pagamentos = m.pagamentos().stream()
-                .map(p -> new Respostas.PagamentoResumo(p.valor().toString(), p.data(), p.formaDePagamento()))
+                .map(p -> new Respostas.PagamentoResumo(p.valor().toString(), p.data(), p.formaDePagamento(),
+                        p.numeroParcela(), p.vencimento()))
                 .toList();
         return new Respostas.MatriculaResumo(m.id(), m.alunoId(), alunoNome, m.modalidade().name(),
                 m.descricaoDoPlano(), m.valorMensal().toString(), m.valorMensal().valor(),
-                m.inicio(), m.fim(), m.status().name(), m.totalPago().toString(), pagamentos);
+                m.inicio(), m.fim(), m.status().name(), m.totalPago().toString(), pagamentos,
+                m.totalPago().maiorOuIgual(m.valorMensal()) ? "REGULARIZADA" : "PENDENTE");
     }
 }

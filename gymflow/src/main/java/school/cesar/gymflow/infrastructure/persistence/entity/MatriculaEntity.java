@@ -49,6 +49,12 @@ public class MatriculaEntity {
     @Column(nullable = false)
     private StatusMatricula status;
 
+    @Column(name = "justificativa_cancelamento", length = 500)
+    private String justificativaCancelamento;
+
+    @Column(name = "cancelada_em")
+    private LocalDate canceladaEm;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "pagamento", joinColumns = @JoinColumn(name = "matricula_id"))
     private List<PagamentoEmbeddable> pagamentos = new ArrayList<>();
@@ -57,7 +63,8 @@ public class MatriculaEntity {
     }
 
     public MatriculaEntity(Long id, Long alunoId, Modalidade modalidade, BigDecimal valorMensal, LocalDate inicio, LocalDate fim,
-                           StatusMatricula status, List<PagamentoEmbeddable> pagamentos) {
+                           StatusMatricula status, String justificativaCancelamento,
+                           LocalDate canceladaEm, List<PagamentoEmbeddable> pagamentos) {
         this.id = id;
         this.alunoId = alunoId;
         this.modalidade = modalidade;
@@ -65,6 +72,8 @@ public class MatriculaEntity {
         this.inicio = inicio;
         this.fim = fim;
         this.status = status;
+        this.justificativaCancelamento = justificativaCancelamento;
+        this.canceladaEm = canceladaEm;
         this.pagamentos = pagamentos == null ? new ArrayList<>() : new ArrayList<>(pagamentos);
     }
 
@@ -95,6 +104,10 @@ public class MatriculaEntity {
     public StatusMatricula getStatus() {
         return status;
     }
+
+    public String getJustificativaCancelamento() { return justificativaCancelamento; }
+
+    public LocalDate getCanceladaEm() { return canceladaEm; }
 
     public List<PagamentoEmbeddable> getPagamentos() {
         return pagamentos;

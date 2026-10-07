@@ -37,12 +37,10 @@ public class AtualizarAlunoUseCase {
         Aluno aluno = repositorioDeAlunos.porId(alunoId)
                 .orElseThrow(() -> new RegraDeNegocioException("Aluno nao encontrado"));
         Cpf cpf = Cpf.de(comando.cpf());
-        repositorioDeAlunos.porCpf(cpf)
-                .filter(outro -> !outro.id().equals(alunoId))
-                .ifPresent(outro -> {
-                    throw new RegraDeNegocioException("O CPF " + cpf + " ja pertence a " + outro.nome());
-                });
-        aluno.atualizar(comando.nome(), cpf, comando.telefone(), comando.email(),
+        if (!aluno.cpf().equals(cpf)) {
+            throw new RegraDeNegocioException("O CPF do aluno e imutavel; altere apenas os dados de contato");
+        }
+        aluno.atualizar(comando.nome(), aluno.cpf(), comando.telefone(), comando.email(),
                 comando.dataDeNascimento(), comando.objetivo());
         Aluno salvo = repositorioDeAlunos.salvar(aluno);
         publicador.publicar(EventoDeDominio.de(EventoDeDominio.ALUNO_ATUALIZADO,

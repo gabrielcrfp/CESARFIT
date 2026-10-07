@@ -1,5 +1,7 @@
 package school.cesar.gymflow.domain.treino.model;
 
+import java.time.LocalDate;
+
 import school.cesar.gymflow.domain.shared.RegraDeNegocioException;
 
 /** Entidade interna do agregado FichaDeTreino. */
@@ -11,6 +13,7 @@ public class ItemDeTreino {
     private final int repeticoes;
     private final int descansoEmSegundos;
     private boolean concluido;
+    private LocalDate concluidoEm;
 
     public ItemDeTreino(String exercicio, GrupoMuscular grupoMuscular,
                         int series, int repeticoes, int descansoEmSegundos) {
@@ -23,17 +26,28 @@ public class ItemDeTreino {
         this.repeticoes = repeticoes;
         this.descansoEmSegundos = descansoEmSegundos;
         this.concluido = false;
+        this.concluidoEm = null;
+    }
+
+    public ItemDeTreino(String exercicio, GrupoMuscular grupoMuscular, int series,
+                        int repeticoes, int descansoEmSegundos, boolean concluido,
+                        LocalDate concluidoEm) {
+        this(exercicio, grupoMuscular, series, repeticoes, descansoEmSegundos);
+        this.concluido = concluido;
+        this.concluidoEm = concluido ? (concluidoEm == null ? LocalDate.now() : concluidoEm) : null;
     }
 
     public void concluir() {
-        if (concluido) {
+        if (concluidoHoje()) {
             throw new RegraDeNegocioException("Item ja concluido: " + exercicio);
         }
         this.concluido = true;
+        this.concluidoEm = LocalDate.now();
     }
 
     public void reabrir() {
         this.concluido = false;
+        this.concluidoEm = null;
     }
 
     public String exercicio() {
@@ -57,6 +71,12 @@ public class ItemDeTreino {
     }
 
     public boolean concluido() {
-        return concluido;
+        return concluidoHoje();
     }
+
+    public boolean concluidoHoje() {
+        return concluido && LocalDate.now().equals(concluidoEm);
+    }
+
+    public LocalDate concluidoEm() { return concluidoEm; }
 }

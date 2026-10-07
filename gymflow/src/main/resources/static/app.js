@@ -132,7 +132,10 @@ async function carregarPainel() {
     <div class="indicador verde"><span>Receita das matrículas ativas</span><strong>${esc(p.receitaDasAtivas)}</strong></div>
     <div class="indicador ambar"><span>Matrículas vencidas</span><strong>${p.matriculasVencidas}</strong></div>
     <div class="indicador vermelho"><span>Matrículas canceladas</span><strong>${p.matriculasCanceladas}</strong></div>
-    <div class="indicador ambar"><span>Alunos sem matrícula ativa</span><strong>${p.alunosSemMatriculaAtiva}</strong></div>`;
+    <div class="indicador ambar"><span>Alunos sem matrícula ativa</span><strong>${p.alunosSemMatriculaAtiva}</strong></div>
+    <div class="indicador"><span>Presenças no mês</span><strong>${p.presencasNoMes}</strong></div>
+    <div class="indicador verde"><span>Fichas ativas</span><strong>${p.fichasAtivas}</strong></div>
+    <div class="indicador ambar"><span>Em atraso</span><strong>${p.matriculasEmAtraso}</strong></div>`;
   const alvo = document.getElementById('ultimas-matriculas');
   if (!p.ultimasMatriculas.length) {
     alvo.innerHTML = '<p class="vazio">Nenhuma matrícula cadastrada ainda.</p>';
@@ -253,6 +256,8 @@ function editarAluno(id) {
   aviso.classList.remove('oculto');
   document.getElementById('btn-salvar-aluno').textContent = 'Salvar alterações';
   document.getElementById('btn-cancelar-aluno').classList.remove('oculto');
+  form.cpf.readOnly = true;
+  form.cpf.setAttribute('aria-readonly', 'true');
   form.nome.focus();
   return carregarAlunos();
 }
@@ -264,6 +269,8 @@ function sairEdicaoAluno() {
   document.getElementById('aviso-edicao-aluno').classList.add('oculto');
   document.getElementById('btn-salvar-aluno').textContent = 'Cadastrar aluno';
   document.getElementById('btn-cancelar-aluno').classList.add('oculto');
+  document.querySelector('#form-aluno [name=cpf]').readOnly = false;
+  document.querySelector('#form-aluno [name=cpf]').removeAttribute('aria-readonly');
 }
 
 document.getElementById('btn-cancelar-aluno').addEventListener('click', () => {
@@ -383,11 +390,12 @@ function desenharTabelaMatriculas(filtrado) {
       <td><span class="etiqueta ${m.plano}">${esc(m.planoNome)}</span></td>
       <td><strong>${esc(m.valorMensal)}</strong></td>
       <td>${dataBR(m.inicio)}<div class="contador">até ${dataBR(m.fim)}</div></td>
-      <td><span class="etiqueta ${m.status}">${NOME_STATUS[m.status]}</span></td>
+      <td><span class="etiqueta ${m.status}">${NOME_STATUS[m.status]}</span><div class="contador financeiro-${m.statusFinanceiro}">${m.statusFinanceiro === 'REGULARIZADA' ? 'Financeiro regularizado' : 'Financeiro pendente'}</div></td>
       <td class="acoes-tabela">
         <button class="btn-mini" data-acao="editar-matricula" data-id="${m.id}">Editar</button>
         ${m.status !== 'CANCELADA' ? `<button class="btn-mini" data-acao="pagar-matricula" data-id="${m.id}">Pagar</button>
-        <button class="btn-mini" data-acao="renovar-matricula" data-id="${m.id}">Renovar</button>` : ''}
+        <button class="btn-mini" data-acao="renovar-matricula" data-id="${m.id}">Renovar</button>
+        <button class="btn-mini perigo" data-acao="cancelar-matricula" data-id="${m.id}">Cancelar</button>` : ''}
         <button class="btn-mini perigo" data-acao="excluir-matricula" data-id="${m.id}">Excluir</button>
       </td></tr>`).join('')}
     </tbody></table>`;
@@ -477,6 +485,29 @@ async function renovarMatricula(id) {
   await recarregarTudo();
 }
 
+function cancelarMatricula(id) {
+  const m = estado.matriculas.find(x => x.id === id);
+  if (!m) throw new Error('Matrícula não encontrada');
+  abrirJanela(`
+    <h2>Cancelar matrícula <button class="fechar" data-acao="fechar-janela" aria-label="Fechar">×</button></h2>
+    <p class="dica">${esc(m.alunoNome)} · ${esc(m.planoNome)} · Esta ação registra a data e a justificativa no histórico.</p>
+    <form id="form-cancelamento" novalidate>
+      <label>Justificativa*<textarea name="justificativa" required minlength="5" rows="4" placeholder="Informe o motivo do cancelamento"></textarea></label>
+      <button type="submit" class="primario">Confirmar cancelamento</button>
+    </form>`);
+  document.getElementById('form-cancelamento').addEventListener('submit', evento => {
+    evento.preventDefault();
+    tentar(async () => {
+      const justificativa = evento.target.justificativa.value.trim();
+      if (justificativa.length < 5) throw new Error('Informe uma justificativa com pelo menos 5 caracteres');
+      await api('POST', `/api/matriculas/${id}/cancelamento`, { justificativa });
+      fecharJanela();
+      avisar('Matrícula cancelada e justificativa registrada.');
+      await recarregarTudo();
+    });
+  });
+}
+
 function pagarMatricula(id) {
   const m = estado.matriculas.find(x => x.id === id);
   if (!m) throw new Error('Matrícula não encontrada');
@@ -485,6 +516,8 @@ function pagarMatricula(id) {
     <p class="dica">${esc(m.alunoNome)} · ${esc(m.planoNome)} · total já pago: ${esc(m.totalPago)}</p>
     <form id="form-pagamento" novalidate>
       <label>Valor (mínimo ${esc(m.valorMensal)})<input name="valor" type="text" value="${m.valorNumerico.toFixed(2).replace('.', ',')}"></label>
+      <div class="duas-colunas"><label>Parcela<input name="numeroParcela" type="number" min="1" step="1" placeholder="Ex.: 1"></label>
+      <label>Vencimento<input name="vencimento" type="date"></label></div>
       <label>Forma de pagamento
         <select name="forma"><option value="PIX">PIX</option><option value="CARTAO">Cartão</option><option value="DINHEIRO">Dinheiro</option></select>
       </label>
@@ -496,7 +529,11 @@ function pagarMatricula(id) {
     tentar(async () => {
       const valor = form.valor.value.trim();
       if (!valor) throw new Error('Informe o valor do pagamento');
-      await api('POST', `/api/matriculas/${id}/pagamentos`, { valor, formaDePagamento: form.forma.value });
+      const numeroParcela = form.numeroParcela.value ? Number(form.numeroParcela.value) : null;
+      const vencimento = form.vencimento.value || null;
+      await api('POST', `/api/matriculas/${id}/pagamentos`, {
+        valor, formaDePagamento: form.forma.value, numeroParcela, vencimento
+      });
       fecharJanela();
       avisar('Pagamento registrado.');
       await recarregarTudo();
@@ -515,6 +552,7 @@ const ACOES = {
   'editar-matricula': editarMatricula,
   'excluir-matricula': excluirMatricula,
   'renovar-matricula': renovarMatricula,
+  'cancelar-matricula': cancelarMatricula,
   'pagar-matricula': pagarMatricula,
   'fechar-janela': fecharJanela
 };

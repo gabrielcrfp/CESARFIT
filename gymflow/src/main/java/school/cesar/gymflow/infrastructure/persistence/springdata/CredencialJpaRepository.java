@@ -12,4 +12,6 @@ public interface CredencialJpaRepository extends JpaRepository<CredencialEntity,
     Optional<CredencialEntity> findByLoginAndPerfil(String login, Perfil perfil);
 
     Optional<CredencialEntity> findByAlunoId(Long alunoId);
+
+    void deleteByAlunoId(Long alunoId);
 }

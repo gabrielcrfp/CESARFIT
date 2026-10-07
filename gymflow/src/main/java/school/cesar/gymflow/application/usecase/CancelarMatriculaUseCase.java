@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import school.cesar.gymflow.application.dto.Respostas;
+import school.cesar.gymflow.application.dto.Comandos;
 import school.cesar.gymflow.domain.matricula.model.Matricula;
 import school.cesar.gymflow.domain.matricula.model.Aluno;
 import school.cesar.gymflow.domain.matricula.repositorio.RepositorioDeAlunos;
@@ -30,9 +31,14 @@ public class CancelarMatriculaUseCase {
 
     @Transactional
     public Respostas.MatriculaResumo executar(Long matriculaId) {
+        return executar(matriculaId, new Comandos.CancelarMatricula("Nao informada"));
+    }
+
+    @Transactional
+    public Respostas.MatriculaResumo executar(Long matriculaId, Comandos.CancelarMatricula comando) {
         Matricula matricula = repositorioDeMatriculas.porId(matriculaId)
                 .orElseThrow(() -> new RegraDeNegocioException("Matricula nao encontrada"));
-        matricula.cancelar();
+        matricula.cancelar(comando == null ? null : comando.justificativa(), java.time.LocalDate.now());
         Matricula salva = repositorioDeMatriculas.salvar(matricula);
         publicador.publicar(EventoDeDominio.de(EventoDeDominio.MATRICULA_CANCELADA,
                 String.valueOf(salva.id()), "Matricula cancelada a pedido do aluno"));

@@ -15,6 +15,8 @@ public interface RepositorioDeAlunos {
 
     Optional<Aluno> porCpf(Cpf cpf);
 
+    Optional<Aluno> porEmail(String email);
+
     List<Aluno> todos();
 
     long quantidade();

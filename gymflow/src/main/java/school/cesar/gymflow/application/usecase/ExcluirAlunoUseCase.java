@@ -12,6 +12,8 @@ import school.cesar.gymflow.domain.matricula.repositorio.RepositorioDeMatriculas
 import school.cesar.gymflow.domain.shared.EventoDeDominio;
 import school.cesar.gymflow.domain.shared.PublicadorDeEventos;
 import school.cesar.gymflow.domain.shared.RegraDeNegocioException;
+import school.cesar.gymflow.domain.acesso.repositorio.RepositorioDeCredenciais;
+import school.cesar.gymflow.domain.treino.repositorio.RepositorioDePresencas;
 import school.cesar.gymflow.domain.treino.repositorio.RepositorioDeFichas;
 
 /**
@@ -26,15 +28,21 @@ public class ExcluirAlunoUseCase {
     private final RepositorioDeAlunos repositorioDeAlunos;
     private final RepositorioDeMatriculas repositorioDeMatriculas;
     private final RepositorioDeFichas repositorioDeFichas;
+    private final RepositorioDePresencas repositorioDePresencas;
+    private final RepositorioDeCredenciais repositorioDeCredenciais;
     private final PublicadorDeEventos publicador;
 
     public ExcluirAlunoUseCase(RepositorioDeAlunos repositorioDeAlunos,
                                RepositorioDeMatriculas repositorioDeMatriculas,
                                RepositorioDeFichas repositorioDeFichas,
+                               RepositorioDePresencas repositorioDePresencas,
+                               RepositorioDeCredenciais repositorioDeCredenciais,
                                PublicadorDeEventos publicador) {
         this.repositorioDeAlunos = repositorioDeAlunos;
         this.repositorioDeMatriculas = repositorioDeMatriculas;
         this.repositorioDeFichas = repositorioDeFichas;
+        this.repositorioDePresencas = repositorioDePresencas;
+        this.repositorioDeCredenciais = repositorioDeCredenciais;
         this.publicador = publicador;
     }
 
@@ -50,6 +58,8 @@ public class ExcluirAlunoUseCase {
         });
         matriculas.forEach(m -> repositorioDeMatriculas.excluir(m.id()));
         repositorioDeFichas.excluirPorAluno(alunoId);
+        repositorioDePresencas.excluirPorAluno(alunoId);
+        repositorioDeCredenciais.excluirPorAluno(alunoId);
         repositorioDeAlunos.excluir(alunoId);
         publicador.publicar(EventoDeDominio.de(EventoDeDominio.ALUNO_EXCLUIDO,
                 String.valueOf(alunoId), "Aluno " + aluno.nome() + " excluido ("

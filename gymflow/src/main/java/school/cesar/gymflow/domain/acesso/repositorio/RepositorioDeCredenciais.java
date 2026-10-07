@@ -12,4 +12,6 @@ public interface RepositorioDeCredenciais {
     Optional<Credencial> daEquipe(String login);
 
     Optional<Credencial> doAluno(Long alunoId);
+
+    void excluirPorAluno(Long alunoId);
 }

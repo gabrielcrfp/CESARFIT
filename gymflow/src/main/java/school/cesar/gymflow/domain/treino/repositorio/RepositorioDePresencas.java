@@ -13,4 +13,6 @@ public interface RepositorioDePresencas {
     boolean existe(Long alunoId, LocalDate data);
 
     List<Presenca> porAluno(Long alunoId);
+
+    void excluirPorAluno(Long alunoId);
 }

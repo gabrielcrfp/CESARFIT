@@ -17,14 +17,14 @@ import school.cesar.gymflow.domain.matricula.repositorio.RepositorioDeMatriculas
 import school.cesar.gymflow.domain.shared.RegraDeNegocioException;
 
 /**
- * Caso de uso: entrar no sistema com numero da matricula e senha.
- * Numero so com digitos = matricula de aluno; numero com letras (ex.: EQ001) = equipe.
+ * Caso de uso: entrar no sistema com e-mail do aluno (ou matricula, mantido para
+ * compatibilidade) e senha. A equipe continua usando o numero de acesso (ex.: EQ001).
  * Enquanto o aluno nao troca a senha, a senha de primeiro acesso sao os 6 primeiros digitos do CPF.
  */
 @Service
 public class EntrarNoSistemaUseCase {
 
-    static final String CREDENCIAIS_INVALIDAS = "Numero da matricula ou senha invalidos";
+    static final String CREDENCIAIS_INVALIDAS = "E-mail, matricula ou senha invalidos";
 
     private final RepositorioDeCredenciais credenciais;
     private final RepositorioDeMatriculas matriculas;
@@ -47,11 +47,16 @@ public class EntrarNoSistemaUseCase {
         String numero = comando.numero() == null ? "" : comando.numero().trim();
         String senha = comando.senha() == null ? "" : comando.senha();
         if (numero.isEmpty() || senha.isEmpty()) {
-            throw new RegraDeNegocioException("Informe o numero da matricula e a senha");
+            throw new RegraDeNegocioException("Informe o e-mail (ou matricula) e a senha");
         }
-        GerenciadorDeSessoes.SessaoAtiva sessao = numero.matches("\\d+")
-                ? entrarComoAluno(Long.parseLong(numero), senha)
-                : entrarComoEquipe(numero, senha);
+        GerenciadorDeSessoes.SessaoAtiva sessao;
+        if (numero.contains("@")) {
+            sessao = entrarComoAlunoPorEmail(numero, senha);
+        } else if (numero.matches("\\d+")) {
+            sessao = entrarComoAluno(Long.parseLong(numero), senha);
+        } else {
+            sessao = entrarComoEquipe(numero, senha);
+        }
         return new Respostas.Sessao(sessao.token(), sessao.perfil().name(), sessao.nome(), sessao.alunoId());
     }
 
@@ -60,9 +65,7 @@ public class EntrarNoSistemaUseCase {
                 .orElseThrow(() -> new RegraDeNegocioException(CREDENCIAIS_INVALIDAS));
         Aluno aluno = alunos.porId(matricula.alunoId())
                 .orElseThrow(() -> new RegraDeNegocioException(CREDENCIAIS_INVALIDAS));
-        boolean senhaConfere = credenciais.doAluno(aluno.id())
-                .map(c -> codificador.confere(senha, c.senhaCodificada()))
-                .orElseGet(() -> senha.equals(senhaDePrimeiroAcesso(aluno)));
+        boolean senhaConfere = senhaConfere(aluno, senha);
         if (!senhaConfere) {
             throw new RegraDeNegocioException(CREDENCIAIS_INVALIDAS);
         }
@@ -70,6 +73,26 @@ public class EntrarNoSistemaUseCase {
             throw new RegraDeNegocioException("Matricula cancelada: procure a recepcao");
         }
         return sessoes.abrir(Perfil.ALUNO, aluno.id(), aluno.nome());
+    }
+
+    private GerenciadorDeSessoes.SessaoAtiva entrarComoAlunoPorEmail(String email, String senha) {
+        Aluno aluno = alunos.porEmail(email)
+                .orElseThrow(() -> new RegraDeNegocioException(CREDENCIAIS_INVALIDAS));
+        Matricula matricula = matriculas.vigentePorAluno(aluno.id())
+                .orElseThrow(() -> new RegraDeNegocioException("Aluno sem matricula ativa"));
+        if (!senhaConfere(aluno, senha)) {
+            throw new RegraDeNegocioException(CREDENCIAIS_INVALIDAS);
+        }
+        if (matricula.status() == StatusMatricula.CANCELADA) {
+            throw new RegraDeNegocioException("Matricula cancelada: procure a recepcao");
+        }
+        return sessoes.abrir(Perfil.ALUNO, aluno.id(), aluno.nome());
+    }
+
+    private boolean senhaConfere(Aluno aluno, String senha) {
+        return credenciais.doAluno(aluno.id())
+                .map(c -> codificador.confere(senha, c.senhaCodificada()))
+                .orElseGet(() -> senha.equals(senhaDePrimeiroAcesso(aluno)));
     }
 
     private GerenciadorDeSessoes.SessaoAtiva entrarComoEquipe(String numero, String senha) {

@@ -1,6 +1,8 @@
 package school.cesar.gymflow.application.usecase;
 
 import java.text.Normalizer;
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
@@ -22,6 +24,7 @@ import school.cesar.gymflow.domain.shared.Dinheiro;
 import school.cesar.gymflow.domain.shared.RegistroDeEventos;
 import school.cesar.gymflow.domain.shared.RegraDeNegocioException;
 import school.cesar.gymflow.domain.treino.repositorio.RepositorioDeFichas;
+import school.cesar.gymflow.domain.treino.repositorio.RepositorioDePresencas;
 
 /**
  * Consultas de leitura usadas pela interface grafica: listagens, pesquisas,
@@ -37,17 +40,20 @@ public class ServicoDeConsultas {
     private final RepositorioDeFichas repositorioDeFichas;
     private final RegistroDeEventos registroDeEventos;
     private final SeletorDePolitica seletorDePolitica;
+    private final RepositorioDePresencas repositorioDePresencas;
 
     public ServicoDeConsultas(RepositorioDeAlunos repositorioDeAlunos,
                               RepositorioDeMatriculas repositorioDeMatriculas,
                               RepositorioDeFichas repositorioDeFichas,
                               RegistroDeEventos registroDeEventos,
-                              SeletorDePolitica seletorDePolitica) {
+                              SeletorDePolitica seletorDePolitica,
+                              RepositorioDePresencas repositorioDePresencas) {
         this.repositorioDeAlunos = repositorioDeAlunos;
         this.repositorioDeMatriculas = repositorioDeMatriculas;
         this.repositorioDeFichas = repositorioDeFichas;
         this.registroDeEventos = registroDeEventos;
         this.seletorDePolitica = seletorDePolitica;
+        this.repositorioDePresencas = repositorioDePresencas;
     }
 
     /** Listagem e pesquisa de alunos por nome, CPF, e-mail ou telefone (Integrante 1). */
@@ -61,7 +67,7 @@ public class ServicoDeConsultas {
                 .filter(a -> termo.isEmpty()
                         || normalizar(a.nome()).contains(termo)
                         || a.email().contains(termo)
-                        || (!digitos.isEmpty() && (a.cpf().numero().contains(digitos)
+                        || (!digitos.isEmpty() && (a.cpf().numero().equals(digitos)
                                 || a.telefone().contains(digitos))))
                 .map(a -> Resumos.aluno(a, porAluno.getOrDefault(a.id(), List.of())))
                 .toList();
@@ -125,6 +131,13 @@ public class ServicoDeConsultas {
         Dinheiro receita = ativas.stream().map(r -> Dinheiro.de(r.valorNumerico()))
                 .reduce(Dinheiro.ZERO, Dinheiro::somar);
         long alunosComAtiva = ativas.stream().map(Respostas.MatriculaResumo::alunoId).distinct().count();
+        YearMonth mes = YearMonth.now();
+        long presencasNoMes = repositorioDeAlunos.todos().stream()
+                .flatMap(a -> repositorioDePresencas.porAluno(a.id()).stream())
+                .filter(p -> YearMonth.from(p.data()).equals(mes)).count();
+        long fichasAtivas = repositorioDeAlunos.todos().stream()
+                .flatMap(a -> repositorioDeFichas.porAluno(a.id()).stream())
+                .filter(f -> !f.arquivada() && f.vigenteEm(LocalDate.now())).count();
         return new Respostas.Painel(
                 nomes.size(),
                 ativas.size(),
@@ -134,12 +147,15 @@ public class ServicoDeConsultas {
                 ativas.stream().filter(r -> r.plano().equals(Modalidade.MENSAL.name())).count(),
                 receita.toString(),
                 nomes.size() - alunosComAtiva,
+                presencasNoMes,
+                fichasAtivas,
+                contar(todas, StatusMatricula.VENCIDA),
                 todas.stream().limit(5).toList());
     }
 
     @Transactional(readOnly = true)
     public List<Respostas.FichaResumo> fichasDoAluno(Long alunoId) {
-        return repositorioDeFichas.porAluno(alunoId).stream()
+        return repositorioDeFichas.porAluno(alunoId).stream().filter(f -> !f.arquivada())
                 .map(GerarFichaDeTreinoUseCase::montarResumo)
                 .toList();
     }

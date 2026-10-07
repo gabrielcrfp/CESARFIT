@@ -37,4 +37,9 @@ public class PresencaRepositorioJpa implements RepositorioDePresencas {
                 .map(e -> new Presenca(e.getId(), e.getAlunoId(), e.getData()))
                 .toList();
     }
+
+    @Override
+    public void excluirPorAluno(Long alunoId) {
+        jpa.deleteByAlunoId(alunoId);
+    }
 }

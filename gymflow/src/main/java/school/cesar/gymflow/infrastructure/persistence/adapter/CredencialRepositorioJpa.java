@@ -41,6 +41,11 @@ public class CredencialRepositorioJpa implements RepositorioDeCredenciais {
         return jpa.findByAlunoId(alunoId).map(CredencialRepositorioJpa::paraDominio);
     }
 
+    @Override
+    public void excluirPorAluno(Long alunoId) {
+        jpa.deleteByAlunoId(alunoId);
+    }
+
     private static Credencial paraDominio(CredencialEntity e) {
         return new Credencial(e.getId(), e.getLogin(), e.getAlunoId(), e.getPerfil(),
                 e.getNome(), e.getSenhaCodificada());

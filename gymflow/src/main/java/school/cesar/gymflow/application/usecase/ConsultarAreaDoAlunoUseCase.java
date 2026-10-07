@@ -48,7 +48,7 @@ public class ConsultarAreaDoAlunoUseCase {
                 .or(() -> doAluno.stream().findFirst())
                 .map(m -> Resumos.matricula(m, aluno.nome()))
                 .orElse(null);
-        Respostas.FichaResumo ficha = fichas.porAluno(alunoId).stream().findFirst()
+        Respostas.FichaResumo ficha = fichas.porAluno(alunoId).stream().filter(f -> !f.arquivada()).findFirst()
                 .map(GerarFichaDeTreinoUseCase::montarResumo)
                 .orElse(null);
         return new Respostas.AreaDoAluno(Resumos.aluno(aluno, doAluno), matricula, ficha,

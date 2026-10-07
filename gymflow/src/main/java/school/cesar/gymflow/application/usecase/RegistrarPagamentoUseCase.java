@@ -37,7 +37,8 @@ public class RegistrarPagamentoUseCase {
                 .orElseThrow(() -> new RegraDeNegocioException("Matricula nao encontrada"));
 
         matricula.registrarPagamento(
-                Pagamento.novo(Dinheiro.de(comando.valor()), comando.formaDePagamento()));
+                Pagamento.novo(Dinheiro.de(comando.valor()), comando.formaDePagamento(),
+                        comando.numeroParcela(), comando.vencimento()));
         Matricula salva = repositorioDeMatriculas.salvar(matricula);
 
         publicador.publicar(EventoDeDominio.de(EventoDeDominio.PAGAMENTO_REGISTRADO,

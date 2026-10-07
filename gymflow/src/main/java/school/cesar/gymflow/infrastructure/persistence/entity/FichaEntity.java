@@ -41,6 +41,9 @@ public class FichaEntity {
     @Column(name = "valida_ate", nullable = false)
     private LocalDate validaAte;
 
+    @Column(nullable = false)
+    private boolean arquivada;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "item_treino", joinColumns = @JoinColumn(name = "ficha_id"))
     @OrderColumn(name = "posicao")
@@ -51,11 +54,17 @@ public class FichaEntity {
 
     public FichaEntity(Long id, Long alunoId, Objetivo objetivo, LocalDate criadaEm,
                        LocalDate validaAte, List<ItemEmbeddable> itens) {
+        this(id, alunoId, objetivo, criadaEm, validaAte, false, itens);
+    }
+
+    public FichaEntity(Long id, Long alunoId, Objetivo objetivo, LocalDate criadaEm,
+                       LocalDate validaAte, boolean arquivada, List<ItemEmbeddable> itens) {
         this.id = id;
         this.alunoId = alunoId;
         this.objetivo = objetivo;
         this.criadaEm = criadaEm;
         this.validaAte = validaAte;
+        this.arquivada = arquivada;
         this.itens = itens == null ? new ArrayList<>() : new ArrayList<>(itens);
     }
 
@@ -78,6 +87,8 @@ public class FichaEntity {
     public LocalDate getValidaAte() {
         return validaAte;
     }
+
+    public boolean isArquivada() { return arquivada; }
 
     public List<ItemEmbeddable> getItens() {
         return itens;

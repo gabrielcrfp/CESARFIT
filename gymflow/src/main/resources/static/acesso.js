@@ -88,7 +88,7 @@ document.getElementById('form-login').addEventListener('submit', async (evento) 
   const cartao = evento.currentTarget;
 
   if (!numero || !senha) {
-    erro.textContent = 'Informe o número da matrícula e a senha.';
+    erro.textContent = 'Informe o e-mail (ou acesso da equipe) e a senha.';
     tremer(cartao);
     return;
   }
@@ -128,8 +128,9 @@ function tremer(elemento) {
 /* Mensagens do servidor vem sem acento; deixamos mais legiveis na tela. */
 function traduzir(texto) {
   return String(texto || '')
+    .replace('E-mail, matricula ou senha invalidos', 'E-mail, matrícula ou senha inválidos.')
     .replace('Numero da matricula ou senha invalidos', 'Número da matrícula ou senha inválidos.')
-    .replace('Informe o numero da matricula e a senha', 'Informe o número da matrícula e a senha.')
+    .replace('Informe o e-mail (ou matricula) e a senha', 'Informe o e-mail (ou acesso da equipe) e a senha.')
     .replace('Matricula cancelada: procure a recepcao', 'Matrícula cancelada: procure a recepção.')
     .replace('Check-in de hoje ja foi registrado', 'O check-in de hoje já foi feito.')
     .replace('Check-in exige matricula ativa', 'O check-in exige matrícula ativa.')

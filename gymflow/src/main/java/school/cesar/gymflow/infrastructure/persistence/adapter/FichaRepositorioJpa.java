@@ -26,10 +26,10 @@ public class FichaRepositorioJpa implements RepositorioDeFichas {
     public FichaDeTreino salvar(FichaDeTreino ficha) {
         List<ItemEmbeddable> itens = ficha.itens().stream()
                 .map(i -> new ItemEmbeddable(i.exercicio(), i.grupoMuscular(), i.series(),
-                        i.repeticoes(), i.descansoEmSegundos(), i.concluido()))
+                        i.repeticoes(), i.descansoEmSegundos(), i.concluido(), i.concluidoEm()))
                 .toList();
         FichaEntity entidade = new FichaEntity(ficha.id(), ficha.alunoId(), ficha.objetivo(),
-                ficha.criadaEm(), ficha.validaAte(), itens);
+                ficha.criadaEm(), ficha.validaAte(), ficha.arquivada(), itens);
         return paraDominio(jpa.save(entidade));
     }
 
@@ -51,14 +51,10 @@ public class FichaRepositorioJpa implements RepositorioDeFichas {
 
     static FichaDeTreino paraDominio(FichaEntity e) {
         List<ItemDeTreino> itens = e.getItens().stream().map(i -> {
-            ItemDeTreino item = new ItemDeTreino(i.getExercicio(), i.getGrupoMuscular(),
-                    i.getSeries(), i.getRepeticoes(), i.getDescansoEmSegundos());
-            if (i.isConcluido()) {
-                item.concluir();
-            }
-            return item;
+            return new ItemDeTreino(i.getExercicio(), i.getGrupoMuscular(), i.getSeries(),
+                    i.getRepeticoes(), i.getDescansoEmSegundos(), i.isConcluido(), i.getConcluidoEm());
         }).toList();
         return new FichaDeTreino(e.getId(), e.getAlunoId(), e.getObjetivo(),
-                e.getCriadaEm(), e.getValidaAte(), itens);
+                e.getCriadaEm(), e.getValidaAte(), e.isArquivada(), itens);
     }
 }

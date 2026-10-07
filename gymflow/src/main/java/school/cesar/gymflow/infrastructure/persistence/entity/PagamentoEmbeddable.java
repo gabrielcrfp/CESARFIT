@@ -19,13 +19,26 @@ public class PagamentoEmbeddable {
     @Column(name = "forma_pagamento", nullable = false)
     private String formaDePagamento;
 
+    @Column(name = "numero_parcela")
+    private Integer numeroParcela;
+
+    @Column(name = "vencimento")
+    private LocalDate vencimento;
+
     protected PagamentoEmbeddable() {
     }
 
     public PagamentoEmbeddable(BigDecimal valor, LocalDate data, String formaDePagamento) {
+        this(valor, data, formaDePagamento, null, null);
+    }
+
+    public PagamentoEmbeddable(BigDecimal valor, LocalDate data, String formaDePagamento,
+                               Integer numeroParcela, LocalDate vencimento) {
         this.valor = valor;
         this.data = data;
         this.formaDePagamento = formaDePagamento;
+        this.numeroParcela = numeroParcela;
+        this.vencimento = vencimento;
     }
 
     public BigDecimal getValor() {
@@ -39,4 +52,8 @@ public class PagamentoEmbeddable {
     public String getFormaDePagamento() {
         return formaDePagamento;
     }
+
+    public Integer getNumeroParcela() { return numeroParcela; }
+
+    public LocalDate getVencimento() { return vencimento; }
 }

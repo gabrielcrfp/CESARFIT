@@ -22,18 +22,23 @@ public final class Respostas {
                               String duracao) {
     }
 
-    public record PagamentoResumo(String valor, LocalDate data, String formaDePagamento) {
+    public record PagamentoResumo(String valor, LocalDate data, String formaDePagamento,
+                                  Integer numeroParcela, LocalDate vencimento) {
+        public PagamentoResumo(String valor, LocalDate data, String formaDePagamento) {
+            this(valor, data, formaDePagamento, null, null);
+        }
     }
 
     public record MatriculaResumo(Long id, Long alunoId, String alunoNome, String plano,
                                   String planoNome, String valorMensal, BigDecimal valorNumerico,
                                   LocalDate inicio, LocalDate fim, String status, String totalPago,
-                                  List<PagamentoResumo> pagamentos) {
+                                  List<PagamentoResumo> pagamentos, String statusFinanceiro) {
     }
 
     public record Painel(long totalDeAlunos, long matriculasAtivas, long matriculasVencidas,
                          long matriculasCanceladas, long semanaisAtivas, long mensaisAtivas,
                          String receitaDasAtivas, long alunosSemMatriculaAtiva,
+                         long presencasNoMes, long fichasAtivas, long matriculasEmAtraso,
                          List<MatriculaResumo> ultimasMatriculas) {
     }
 

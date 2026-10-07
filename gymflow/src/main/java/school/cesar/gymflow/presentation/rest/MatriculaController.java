@@ -87,7 +87,8 @@ public class MatriculaController {
     public Respostas.MatriculaResumo pagar(@PathVariable Long id,
                                            @RequestBody Comandos.RegistrarPagamento corpo) {
         return registrarPagamento.executar(
-                new Comandos.RegistrarPagamento(id, corpo.valor(), corpo.formaDePagamento()));
+                new Comandos.RegistrarPagamento(id, corpo.valor(), corpo.formaDePagamento(),
+                        corpo.numeroParcela(), corpo.vencimento()));
     }
 
     @PostMapping("/{id}/renovacoes")
@@ -96,7 +97,8 @@ public class MatriculaController {
     }
 
     @PostMapping("/{id}/cancelamento")
-    public Respostas.MatriculaResumo cancelar(@PathVariable Long id) {
-        return cancelar.executar(id);
+    public Respostas.MatriculaResumo cancelar(@PathVariable Long id,
+                                              @RequestBody(required = false) Comandos.CancelarMatricula corpo) {
+        return cancelar.executar(id, corpo);
     }
 }

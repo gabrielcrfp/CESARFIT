@@ -5,6 +5,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.scheduling.annotation.Async;
 
 import school.cesar.gymflow.domain.shared.EventoDeDominio;
 import school.cesar.gymflow.domain.shared.Observador;
@@ -27,6 +28,7 @@ public class NotificadorPorEmail implements Observador {
     }
 
     @Override
+    @Async
     public void notificar(EventoDeDominio evento) {
         LOG.info("[E-MAIL] {} (ref {}): {}", evento.tipo(), evento.referencia(), evento.detalhe());
     }

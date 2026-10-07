@@ -55,9 +55,9 @@ public class CargaInicial implements CommandLineRunner {
                     codificador.codificar("cesarfit")));
         }
         if (repositorioDeAlunos.quantidade() == 0) {
-            Aluno ana = repositorioDeAlunos.salvar(new Aluno(null, "Ana Lima", Cpf.de("11122233344"), "81988887777",
+            Aluno ana = repositorioDeAlunos.salvar(new Aluno(null, "Ana Lima", Cpf.de("52998224725"), "81988887777",
                     "ana@email.com", LocalDate.of(1998, 4, 12), Objetivo.HIPERTROFIA));
-            repositorioDeAlunos.salvar(new Aluno(null, "Bruno Souza", Cpf.de("55566677788"), "81999990000",
+            repositorioDeAlunos.salvar(new Aluno(null, "Bruno Souza", Cpf.de("11144477735"), "81999990000",
                     "bruno@email.com", LocalDate.of(1990, 9, 3), Objetivo.EMAGRECIMENTO));
             var matricula = matricular.executar(new Comandos.SalvarMatricula(
                     ana.id(), "MENSAL", LocalDate.now().minusDays(10), null));
@@ -65,7 +65,7 @@ public class CargaInicial implements CommandLineRunner {
             for (int dias = 3; dias >= 1; dias--) {
                 registrarPresenca.registrarEm(ana.id(), LocalDate.now().minusDays(dias));
             }
-            LOG.info("Demo: aluna Ana Lima -> matricula {} / senha 111222 | equipe -> EQ001 / cesarfit",
+            LOG.info("Demo: aluna Ana Lima -> e-mail ana@email.com / senha 529982 | equipe -> EQ001 / cesarfit",
                     matricula.id());
         }
     }

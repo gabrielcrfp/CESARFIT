@@ -39,6 +39,12 @@ public class AlunoRepositorioJpa implements RepositorioDeAlunos {
     }
 
     @Override
+    public Optional<Aluno> porEmail(String email) {
+        return email == null ? Optional.empty()
+                : jpa.findByEmailIgnoreCase(email.trim()).map(AlunoRepositorioJpa::paraDominio);
+    }
+
+    @Override
     public List<Aluno> todos() {
         return jpa.findAllByOrderByNomeAsc().stream().map(AlunoRepositorioJpa::paraDominio).toList();
     }

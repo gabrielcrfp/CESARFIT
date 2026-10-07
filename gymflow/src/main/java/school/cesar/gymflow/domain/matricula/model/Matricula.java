@@ -23,6 +23,8 @@ public class Matricula {
     private LocalDate inicio;
     private LocalDate fim;
     private StatusMatricula status;
+    private String justificativaCancelamento;
+    private LocalDate canceladaEm;
     private final List<Pagamento> pagamentos = new ArrayList<>();
 
     public Matricula(Long id, Long alunoId, Modalidade modalidade, Dinheiro valorMensal,
@@ -107,10 +109,19 @@ public class Matricula {
     }
 
     public void cancelar() {
-        if (status == StatusMatricula.CANCELADA) {
+        cancelar("Nao informada", LocalDate.now());
+    }
+
+    public void cancelar(String justificativa, LocalDate data) {
+        if (status == StatusMatricula.CANCELADA && justificativaCancelamento != null) {
             throw new RegraDeNegocioException("Matricula ja esta cancelada");
         }
+        if (justificativa == null || justificativa.isBlank()) {
+            throw new RegraDeNegocioException("A justificativa do cancelamento e obrigatoria");
+        }
         this.status = StatusMatricula.CANCELADA;
+        this.justificativaCancelamento = justificativa.trim();
+        this.canceladaEm = data == null ? LocalDate.now() : data;
     }
 
     public boolean estaVigenteEm(LocalDate data) {
@@ -172,5 +183,13 @@ public class Matricula {
 
     public List<Pagamento> pagamentos() {
         return Collections.unmodifiableList(pagamentos);
+    }
+
+    public String justificativaCancelamento() {
+        return justificativaCancelamento;
+    }
+
+    public LocalDate canceladaEm() {
+        return canceladaEm;
     }
 }

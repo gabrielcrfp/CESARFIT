@@ -72,12 +72,15 @@ h2 { margin: 0 0 16px; font-size: 20px; font-weight: 600; }
 
 label { display: block; margin-bottom: 12px; font-size: 13px; color: var(--tinta-fraca); }
 
-input[type=text], input[type=email], input[type=date], input[type=tel], input[type=search], input:not([type]), select {
+input[type=text], input[type=email], input[type=date], input[type=tel], input[type=number], input[type=search], input:not([type]), select, textarea {
   width: 100%; margin-top: 4px; padding: 9px 10px;
   border: 1px solid var(--linha); background: #fbfcfb;
   font: inherit; color: var(--tinta);
 }
-input:focus, select:focus { outline: 2px solid var(--laranja); outline-offset: -1px; }
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--laranja); outline-offset: -1px; }
+input[readonly] { background: #f0f1f1; color: var(--tinta-fraca); cursor: not-allowed; }
+small.dica { display: block; margin-top: 4px; line-height: 1.35; }
+.duas-colunas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
 .marcador { display: flex; align-items: center; gap: 8px; color: var(--tinta); font-size: 14px; }
 .marcador input { width: auto; margin: 0; }
@@ -171,6 +174,8 @@ tr.em-edicao td { background: #fff4ec; }
 /* planos e situacao */
 .etiqueta.SEMANAL { color: #1f5fbf; border-color: #1f5fbf; }
 .etiqueta.MENSAL { color: var(--laranja-escuro); border-color: var(--laranja-escuro); }
+.financeiro-REGULARIZADA { color: var(--verde); }
+.financeiro-PENDENTE { color: var(--ambar); }
 .valor-calculado {
   display: flex; justify-content: space-between; align-items: baseline;
   background: #fff4ec; border: 1px solid #ffd2b3; padding: 10px 12px; margin: 0 0 14px;

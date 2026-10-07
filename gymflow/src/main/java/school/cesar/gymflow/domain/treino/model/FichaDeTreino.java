@@ -22,15 +22,23 @@ public class FichaDeTreino implements Iterable<ItemDeTreino> {
     private final Objetivo objetivo;
     private final LocalDate criadaEm;
     private final LocalDate validaAte;
+    private boolean arquivada;
     private final List<ItemDeTreino> itens = new ArrayList<>();
 
     public FichaDeTreino(Long id, Long alunoId, Objetivo objetivo,
                          LocalDate criadaEm, LocalDate validaAte, List<ItemDeTreino> itens) {
+        this(id, alunoId, objetivo, criadaEm, validaAte, false, itens);
+    }
+
+    public FichaDeTreino(Long id, Long alunoId, Objetivo objetivo,
+                         LocalDate criadaEm, LocalDate validaAte, boolean arquivada,
+                         List<ItemDeTreino> itens) {
         this.id = id;
         this.alunoId = alunoId;
         this.objetivo = objetivo;
         this.criadaEm = criadaEm;
         this.validaAte = validaAte;
+        this.arquivada = arquivada;
         if (itens != null) {
             this.itens.addAll(itens);
         }
@@ -52,8 +60,12 @@ public class FichaDeTreino implements Iterable<ItemDeTreino> {
     }
 
     public boolean vigenteEm(LocalDate data) {
-        return !data.isAfter(validaAte);
+        return !arquivada && !data.isAfter(validaAte);
     }
+
+    public void arquivar() { this.arquivada = true; }
+
+    public boolean arquivada() { return arquivada; }
 
     /** Padrao Iterator - itera somente os itens pendentes. */
     @Override
