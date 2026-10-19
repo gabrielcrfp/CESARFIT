@@ -1,4 +1,4 @@
-# GymFlow - Sistema de Gestao de Academia
+# CesarFit - Sistema de Gestao de Academia
 
 Projeto da disciplina (trabalho em grupo, 6 integrantes) - CESAR School.
 Java 17 + Spring Boot 3 + JPA/Hibernate + H2/PostgreSQL + Cucumber.
@@ -17,9 +17,9 @@ Modelado com DDD e arquitetura limpa. Interface web em HTML/CSS/JS puro servida 
 - VS Code com a extensao **Extension Pack for Java** (Microsoft)
 
 ### Rodando no VS Code
-1. `File > Open Folder...` e abra a pasta **`gymflow`** (a que contem o `pom.xml`).
+1. `File > Open Folder...` e abra a pasta **`cesafit`** (a que contem o `pom.xml`).
 2. Aguarde a extensao Java importar o projeto (barra inferior: "Java: Ready").
-3. Abra `src/main/java/school/cesar/gymflow/GymflowApplication.java` e clique em **Run**
+3. Abra `src/main/java/school/cesar/cesarfit/GymflowApplication.java` e clique em **Run**
    acima do metodo `main` — **ou** no terminal do VS Code:
    ```bash
    mvn spring-boot:run
