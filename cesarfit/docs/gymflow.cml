@@ -1,0 +1,196 @@
+/* GymFlow - modelo estrategico e tatico (Context Mapper) */
+
+ContextMap GymFlowMapa {
+  type = SYSTEM_LANDSCAPE
+  state = TO_BE
+  contains MatriculaContext, FinanceiroContext, TreinoContext, AtendimentoContext, OperacaoContext, AcessoContext
+
+  MatriculaContext [U,OHS]->[D,ACL] FinanceiroContext
+  MatriculaContext [U,OHS]->[D,CF] TreinoContext
+  MatriculaContext [U,OHS]->[D,CF] AcessoContext
+  TreinoContext [U,OHS]->[D,CF] AtendimentoContext
+  MatriculaContext [U,OHS]->[D,CF] AtendimentoContext
+}
+
+Domain Academia {
+  Subdomain GestaoDeMatriculas { type = CORE_DOMAIN domainVisionStatement = "Alunos, planos, matriculas, renovacao, cancelamento e avisos de vencimento" }
+  Subdomain Financeiro { type = SUPPORTING_DOMAIN domainVisionStatement = "Pagamentos, estornos e contestacoes de cobranca" }
+  Subdomain Treinamento { type = CORE_DOMAIN domainVisionStatement = "Catalogo de exercicios, fichas, presenca e feedback pos-treino" }
+  Subdomain AtendimentoAoAluno { type = SUPPORTING_DOMAIN domainVisionStatement = "Avaliacao fisica, substituicao de exercicio e atendimento do instrutor" }
+  Subdomain OperacaoDaAcademia { type = SUPPORTING_DOMAIN domainVisionStatement = "Problemas de equipamentos" }
+  Subdomain ControleDeAcesso { type = GENERIC_SUBDOMAIN domainVisionStatement = "Login, sessao e senha" }
+}
+
+BoundedContext MatriculaContext implements GestaoDeMatriculas {
+  Aggregate Alunos {
+    Entity Aluno {
+      aggregateRoot
+      String nome
+      - Cpf cpf
+      String telefone
+      String email
+      Date dataDeNascimento
+      - Objetivo objetivo
+    }
+    ValueObject Cpf { String numero }
+    enum Objetivo { HIPERTROFIA, EMAGRECIMENTO, CONDICIONAMENTO }
+  }
+  Aggregate Matriculas {
+    Entity Matricula {
+      aggregateRoot
+      Long alunoId
+      - Modalidade modalidade
+      BigDecimal valorMensal
+      Date inicio
+      Date fim
+      - StatusMatricula status
+      - List<Pagamento> pagamentos
+      String justificativaDoCancelamento
+      Date dataDaSolicitacaoDeCancelamento
+      BigDecimal taxaDeCancelamento
+    }
+    ValueObject Pagamento {
+      BigDecimal valor
+      Date data
+      String formaDePagamento
+      boolean estornado
+      String motivoDoEstorno
+      Date dataDoEstorno
+    }
+    enum Modalidade { MENSAL, ANUAL }
+    enum StatusMatricula { ATIVA, VENCIDA, CANCELADA }
+  }
+  Aggregate Notificacoes {
+    Entity NotificacaoDeVencimento {
+      aggregateRoot
+      Long matriculaId
+      Long alunoId
+      Date vencimento
+      Date enviadaEm
+      String mensagem
+      boolean lida
+    }
+  }
+}
+
+BoundedContext FinanceiroContext implements Financeiro {
+  Aggregate Contestacoes {
+    Entity ContestacaoDeCobranca {
+      aggregateRoot
+      Long matriculaId
+      Long alunoId
+      int indiceDoPagamento
+      String valor
+      String motivo
+      - StatusContestacao status
+      String parecer
+    }
+    enum StatusContestacao { ABERTA, PROCEDENTE, IMPROCEDENTE }
+  }
+}
+
+BoundedContext TreinoContext implements Treinamento {
+  Aggregate Catalogo {
+    Entity Exercicio {
+      aggregateRoot
+      String nome
+      - GrupoMuscular grupoMuscular
+      String equipamento
+      boolean ativo
+    }
+    enum GrupoMuscular { PEITO, COSTAS, PERNAS, OMBROS, BRACOS, CORE, CARDIO }
+  }
+  Aggregate Fichas {
+    Entity FichaDeTreino {
+      aggregateRoot
+      Long alunoId
+      Date criadaEm
+      Date validaAte
+      - List<ItemDeTreino> itens
+    }
+    Entity ItemDeTreino {
+      String exercicio
+      int series
+      int repeticoes
+      int descansoEmSegundos
+      String divisao
+      boolean concluido
+    }
+  }
+  Aggregate Frequencia {
+    Entity Presenca { aggregateRoot Long alunoId Date data }
+    Entity FeedbackDeTreino {
+      aggregateRoot
+      Long alunoId
+      Long fichaId
+      Date data
+      int esforco
+      String observacao
+    }
+  }
+}
+
+BoundedContext AtendimentoContext implements AtendimentoAoAluno {
+  Aggregate Avaliacoes {
+    Entity SolicitacaoDeAvaliacao {
+      aggregateRoot
+      Long alunoId
+      Date dataDesejada
+      Date dataProposta
+      Date dataAgendada
+      - StatusAvaliacao status
+    }
+    enum StatusAvaliacao { SOLICITADA, NOVO_HORARIO_PROPOSTO, CONFIRMADA, CANCELADA }
+  }
+  Aggregate Substituicoes {
+    Entity SolicitacaoDeSubstituicao {
+      aggregateRoot
+      Long alunoId
+      Long fichaId
+      int posicao
+      String exercicioAtual
+      String exercicioNovo
+      String motivo
+      - StatusSolicitacao status
+    }
+    enum StatusSolicitacao { PENDENTE, APROVADA, REJEITADA }
+  }
+  Aggregate Atendimentos {
+    Entity SolicitacaoDeAtendimento {
+      aggregateRoot
+      Long alunoId
+      Long fichaId
+      String motivo
+      String instrutor
+      String orientacao
+      - StatusAtendimento status
+    }
+    enum StatusAtendimento { ABERTO, EM_ATENDIMENTO, CONCLUIDO }
+  }
+}
+
+BoundedContext OperacaoContext implements OperacaoDaAcademia {
+  Aggregate Equipamentos {
+    Entity OcorrenciaDeEquipamento {
+      aggregateRoot
+      String equipamento
+      String descricao
+      String solucao
+      - StatusOcorrencia status
+    }
+    enum StatusOcorrencia { ABERTA, EM_ANDAMENTO, RESOLVIDA }
+  }
+}
+
+BoundedContext AcessoContext implements ControleDeAcesso {
+  Aggregate Credenciais {
+    Entity Credencial {
+      aggregateRoot
+      String login
+      Long alunoId
+      - Perfil perfil
+      String senhaCodificada
+    }
+    enum Perfil { ALUNO, EQUIPE }
+  }
+}

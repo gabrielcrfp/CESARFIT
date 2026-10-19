@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CesarFit</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏋️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilo.css?v=6">
+<link rel="stylesheet" href="acesso.css?v=6">
+</head>
+<body>
+
+<!-- Fundo animado (liquid glass) usado no login e na area do aluno -->
+<div class="fundo-vivo" aria-hidden="true">
+  <span class="bolha b1"></span><span class="bolha b2"></span><span class="bolha b3"></span><span class="bolha b4"></span>
+</div>
+
+<!-- LOGIN -->
+<section id="tela-login" class="tela-login oculto">
+  <form id="form-login" class="vidro cartao-login" novalidate>
+    <div class="marca-login">
+      <span class="marca-peso"></span>
+      <h1>CesarFit</h1>
+    </div>
+    <p class="subtitulo-login">Entre com o número da matrícula e a senha.</p>
+    <label class="campo-vidro">Número da matrícula
+      <input id="login-numero" name="numero" type="text" inputmode="text" autocomplete="username" required placeholder="Ex.: 1">
+    </label>
+    <label class="campo-vidro">Senha
+      <span class="senha-com-olho">
+        <input id="login-senha" name="senha" type="password" autocomplete="current-password" required placeholder="••••••">
+        <button type="button" class="olho" id="btn-ver-senha" aria-label="Mostrar senha">👁</button>
+      </span>
+    </label>
+    <p id="erro-login" class="erro-login" role="alert"></p>
+    <button type="submit" class="botao-vidro primario-vidro" id="btn-entrar"><span>Entrar</span></button>
+    <p class="dica-login">Primeiro acesso do aluno: a senha são os 6 primeiros dígitos do CPF. A equipe entra com o número de acesso (ex.: EQ001).</p>
+  </form>
+</section>
+
+<!-- AREA DO ALUNO -->
+<div id="visao-aluno" class="visao-aluno oculto">
+  <header class="vidro barra-aluno">
+    <div class="marca-login pequena"><span class="marca-peso"></span><h1>CesarFit</h1></div>
+    <div class="saudacao"><span id="saudacao-aluno">Olá!</span>
+      <button class="botao-vidro fantasma" id="btn-sair-aluno">Sair</button>
+    </div>
+  </header>
+
+  <main class="grade-aluno">
+    <section class="cartao-avisos" id="cartao-avisos" aria-label="Avisos"></section>
+    <section class="vidro cartao-fogo" id="cartao-fogo" aria-label="Frequência"></section>
+    <section class="vidro cartao-perfil" id="cartao-perfil" aria-label="Meus dados"></section>
+    <section class="vidro cartao-treino" id="cartao-treino" aria-label="Treino da semana"></section>
+    <section class="vidro cartao-pos" id="cartao-pos" aria-label="Pós-treino"></section>
+    <section class="vidro cartao-pedidos" id="cartao-pedidos" aria-label="Minhas solicitações"></section>
+    <section class="vidro cartao-financeiro" id="cartao-financeiro" aria-label="Financeiro"></section>
+  </main>
+</div>
+
+<dialog id="janela-senha" class="janela-vidro">
+  <form id="form-senha" class="vidro janela-senha-corpo" novalidate>
+    <h2>Trocar senha</h2>
+    <label class="campo-vidro">Senha atual<input type="password" name="senhaAtual" required autocomplete="current-password"></label>
+    <label class="campo-vidro">Nova senha (mín. 6 caracteres)<input type="password" name="novaSenha" required minlength="6" autocomplete="new-password"></label>
+    <label class="campo-vidro">Repita a nova senha<input type="password" name="confirmacao" required minlength="6" autocomplete="new-password"></label>
+    <div class="acoes-janela">
+      <button type="button" class="botao-vidro fantasma" id="btn-fechar-senha">Cancelar</button>
+      <button type="submit" class="botao-vidro primario-vidro">Salvar senha</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="janela-aluno" class="janela-vidro">
+  <div class="vidro janela-senha-corpo" id="conteudo-janela-aluno"></div>
+</dialog>
+
+<!-- VISAO DA EQUIPE -->
+<div id="visao-equipe" class="visao-equipe oculto">
+
+<header class="barra">
+  <div class="marca">
+    <span class="marca-peso"></span>
+    <h1>CesarFit</h1>
+    <p>Recepção e sala de treino</p>
+  </div>
+  <nav class="abas" id="abas">
+    <button class="aba ativa" data-alvo="painel">Painel</button>
+    <button class="aba" data-alvo="alunos">Alunos e matrículas</button>
+    <button class="aba" data-alvo="treinos">Treinos</button>
+    <button class="aba" data-alvo="exercicios">Exercícios</button>
+    <button class="aba" data-alvo="solicitacoes">Solicitações <span class="bolinha oculto" id="bolinha-solicitacoes"></span></button>
+    <button class="aba" data-alvo="equipamentos">Equipamentos</button>
+    <button class="aba" data-alvo="eventos">Eventos</button>
+    <button class="aba sair-equipe" id="btn-sair-equipe" type="button">Sair</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- PAINEL (Integrante 6) -->
+  <section id="painel" class="secao largura-total ativa">
+    <div>
+      <div class="indicadores" id="indicadores"></div>
+      <div class="coluna-dado">
+        <h2>Últimas matrículas</h2>
+        <div id="ultimas-matriculas"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ALUNOS (Integrantes 1 e 2) -->
+  <section id="alunos" class="secao">
+    <div class="coluna-acao">
+      <h2 id="titulo-form-aluno">Cadastrar aluno</h2>
+      <p id="aviso-edicao-aluno" class="modo-edicao oculto"></p>
+      <form id="form-aluno" novalidate>
+        <label>Nome*<input name="nome" type="text" required minlength="3" placeholder="Ana Lima"></label>
+        <label>CPF*<input name="cpf" type="text" required placeholder="111.222.333-44" maxlength="14"></label>
+        <label>Telefone*<input name="telefone" type="tel" required placeholder="(81) 98888-7777" maxlength="15"></label>
+        <label>E-mail*<input name="email" type="email" required placeholder="ana@email.com"></label>
+        <label>Data de nascimento*<input name="dataDeNascimento" type="date" required></label>
+        <label>Objetivo (usado na ficha de treino)
+          <select name="objetivo">
+            <option value="HIPERTROFIA">Hipertrofia</option>
+            <option value="EMAGRECIMENTO">Emagrecimento</option>
+            <option value="CONDICIONAMENTO">Condicionamento</option>
+          </select>
+        </label>
+        <button type="submit" class="primario" id="btn-salvar-aluno">Cadastrar aluno</button>
+        <button type="button" class="secundario oculto" id="btn-cancelar-aluno">Cancelar edição</button>
+      </form>
+    </div>
+    <div class="coluna-dado">
+      <div class="cabecalho-dado"><h2>Alunos cadastrados</h2><span class="contador" id="contador-alunos"></span></div>
+      <div class="filtros">
+        <input type="search" id="busca-aluno" placeholder="Pesquisar por nome, CPF, telefone ou e-mail">
+      </div>
+      <div id="tabela-alunos"></div>
+    </div>
+  </section>
+
+  <!-- MATRICULAS (Integrantes 3, 4 e 5) -->
+  <section id="matriculas" class="secao">
+    <div class="coluna-acao">
+      <h2 id="titulo-form-matricula">Nova matrícula</h2>
+      <p id="aviso-edicao-matricula" class="modo-edicao oculto"></p>
+      <form id="form-matricula" novalidate>
+        <label>Aluno*<select id="aluno-matricula" class="seletor-aluno"></select></label>
+        <p class="dica">Plano*</p>
+        <div id="lista-planos" class="planos"></div>
+        <div class="valor-calculado"><span>Valor do plano</span><strong id="valor-calculado">—</strong></div>
+        <label>Data de início*<input type="date" id="inicio-matricula"></label>
+        <label id="campo-status" class="oculto">Situação*
+          <select id="status-matricula">
+            <option value="ATIVA">Ativa</option>
+            <option value="VENCIDA">Vencida</option>
+            <option value="CANCELADA" disabled>Cancelada (use o botão Cancelar)</option>
+          </select>
+        </label>
+        <button type="submit" class="primario" id="btn-salvar-matricula">Matricular</button>
+        <button type="button" class="secundario oculto" id="btn-cancelar-matricula">Cancelar edição</button>
+      </form>
+      <div class="bloco-extra">
+        <h3>Avisos de vencimento</h3>
+        <p class="dica">Todo dia às 8h o sistema avisa quem vence em até 3 dias (um aviso por vencimento).</p>
+        <button type="button" class="secundario" id="btn-verificar-vencimentos">Verificar agora</button>
+        <div id="lista-avisos"></div>
+      </div>
+    </div>
+    <div class="coluna-dado">
+      <div class="cabecalho-dado"><h2>Matrículas</h2><span class="contador" id="contador-matriculas"></span></div>
+      <div class="filtros">
+        <input type="search" id="busca-matricula" placeholder="Pesquisar por nome do aluno, CPF ou nº da matrícula">
+        <select id="filtro-plano">
+          <option value="">Todos os planos</option>
+          <option value="MENSAL">Plano Mensal</option>
+          <option value="ANUAL">Plano Anual</option>
+        </select>
+        <select id="filtro-status">
+          <option value="">Todas as situações</option>
+          <option value="ATIVA">Ativa</option>
+          <option value="VENCIDA">Vencida</option>
+          <option value="CANCELADA">Cancelada</option>
+        </select>
+      </div>
+      <div id="tabela-matriculas"></div>
+    </div>
+  </section>
+
+  <!-- TREINOS -->
+  <section id="treinos" class="secao">
+    <div class="coluna-acao">
+      <h2>Prescrever treino</h2>
+      <label>Aluno<select id="aluno-treino" class="seletor-aluno"></select></label>
+      <p class="dica">A ficha é montada conforme o objetivo do aluno e exige matrícula ativa.</p>
+      <button id="btn-gerar-ficha" class="primario">Gerar ficha</button>
+    </div>
+    <div class="coluna-dado">
+      <h2>Ficha em execução</h2>
+      <div id="ficha"></div>
+      <div class="bloco-extra">
+        <h3>Feedbacks pós-treino</h3>
+        <div id="feedbacks-aluno"><p class="vazio">Selecione um aluno.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXERCICIOS (catalogo) -->
+  <section id="exercicios" class="secao">
+    <div class="coluna-acao">
+      <h2 id="titulo-form-exercicio">Novo exercício</h2>
+      <p id="aviso-edicao-exercicio" class="modo-edicao oculto"></p>
+      <form id="form-exercicio" novalidate>
+        <label>Nome*<input name="nome" type="text" required minlength="3" maxlength="60" placeholder="Supino reto"></label>
+        <label>Grupo muscular*
+          <select name="grupoMuscular">
+            <option value="PEITO">Peito</option><option value="COSTAS">Costas</option>
+            <option value="PERNAS">Pernas</option><option value="OMBROS">Ombros</option>
+            <option value="BRACOS">Braços</option><option value="CORE">Core</option>
+            <option value="CARDIO">Cardio</option>
+          </select>
+        </label>
+        <label>Equipamento (vazio = peso corporal)<input name="equipamento" type="text" maxlength="60" placeholder="Barra e banco"></label>
+        <button type="submit" class="primario" id="btn-salvar-exercicio">Incluir no catálogo</button>
+        <button type="button" class="secundario oculto" id="btn-cancelar-exercicio">Cancelar edição</button>
+      </form>
+      <p class="dica">Só exercícios ativos entram nas fichas geradas e nas substituições. Exercício já usado em fichas não muda de nome nem de grupo e não pode ser excluído: desative-o.</p>
+    </div>
+    <div class="coluna-dado">
+      <div class="cabecalho-dado"><h2>Catálogo</h2><span class="contador" id="contador-exercicios"></span></div>
+      <div class="filtros">
+        <input type="search" id="busca-exercicio" placeholder="Pesquisar exercício ou equipamento">
+        <select id="filtro-grupo">
+          <option value="">Todos os grupos</option>
+          <option value="PEITO">Peito</option><option value="COSTAS">Costas</option>
+          <option value="PERNAS">Pernas</option><option value="OMBROS">Ombros</option>
+          <option value="BRACOS">Braços</option><option value="CORE">Core</option>
+          <option value="CARDIO">Cardio</option>
+        </select>
+      </div>
+      <div id="tabela-exercicios"></div>
+    </div>
+  </section>
+
+  <!-- SOLICITACOES DOS ALUNOS -->
+  <section id="solicitacoes" class="secao largura-total">
+    <div>
+      <div class="indicadores" id="indicadores-solicitacoes"></div>
+      <div class="grade-solicitacoes">
+        <div class="coluna-dado"><div class="cabecalho-dado"><h2>Avaliações físicas</h2></div><div id="tabela-avaliacoes"></div></div>
+        <div class="coluna-dado"><div class="cabecalho-dado"><h2>Atendimentos do instrutor</h2></div><div id="tabela-atendimentos"></div></div>
+        <div class="coluna-dado"><div class="cabecalho-dado"><h2>Substituições de exercício</h2></div><div id="tabela-substituicoes"></div></div>
+        <div class="coluna-dado"><div class="cabecalho-dado"><h2>Contestações de cobrança</h2></div><div id="tabela-contestacoes"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EQUIPAMENTOS -->
+  <section id="equipamentos" class="secao">
+    <div class="coluna-acao">
+      <h2>Registrar problema</h2>
+      <form id="form-ocorrencia" novalidate>
+        <label>Equipamento*<input name="equipamento" type="text" required maxlength="80" placeholder="Esteira 3"></label>
+        <label>Descrição do problema*<textarea name="descricao" rows="4" maxlength="500" placeholder="Descreva o defeito (mín. 10 caracteres)"></textarea></label>
+        <button type="submit" class="primario">Registrar ocorrência</button>
+      </form>
+      <p class="dica">Fluxo: Aberta → Em andamento → Resolvida. Não é permitido abrir outra ocorrência para um equipamento que ainda tem problema pendente.</p>
+    </div>
+    <div class="coluna-dado">
+      <div class="cabecalho-dado"><h2>Ocorrências</h2><span class="contador" id="contador-ocorrencias"></span></div>
+      <div class="filtros">
+        <select id="filtro-ocorrencia">
+          <option value="">Todas</option>
+          <option value="ABERTA">Abertas</option>
+          <option value="EM_ANDAMENTO">Em andamento</option>
+          <option value="RESOLVIDA">Resolvidas</option>
+        </select>
+      </div>
+      <div id="tabela-ocorrencias"></div>
+    </div>
+  </section>
+
+  <!-- EVENTOS -->
+  <section id="eventos" class="secao">
+    <div class="coluna-acao">
+      <h2>Trilha de eventos</h2>
+      <p class="dica">Cada ação do domínio publica um evento. Os observadores registram aqui e notificam o aluno por e-mail (veja o log do servidor).</p>
+      <button id="btn-eventos" class="secundario">Atualizar</button>
+    </div>
+    <div class="coluna-dado">
+      <div id="lista-eventos"></div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<dialog id="janela"><div class="janela" id="conteudo-janela"></div></dialog>
+<div id="aviso" class="aviso" role="status"></div>
+<script src="app.js?v=6"></script>
+<script src="acesso.js?v=6"></script>
+<script src="equipe-extra.js?v=6"></script>
+<script src="aluno-extra.js?v=6"></script>
+</body>
+</html>
