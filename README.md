@@ -147,13 +147,6 @@ src/test/...                 # Cucumber: steps + features
 
 ---
 
-## 6. Pendencias do grupo antes da entrega
-
-1. Preencher os nomes reais dos integrantes na secao 2.
-2. Colar o link do Figma em `docs/prototipos.md`.
-3. Revisar o modelo Context Mapper em `docs/gymflow.cml` (abrir no plugin Context Mapper).
-4. Anexar as interacoes com IA em `docs/declaracao-de-ia.md`.
-
 ## Login e área do aluno
 
 - Tela de login com **número da matrícula** e **senha**.
